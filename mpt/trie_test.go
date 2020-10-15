@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/zllai/go-MerklePatriciaTree/kvstore"
+	"github.com/vldmkr/merkle-patricia-trie/kvstore"
 )
 
 func TestPutGet(t *testing.T) {

@@ -1,4 +1,4 @@
-module github.com/zllai/go-MerklePatriciaTree
+module github.com/vldmkr/merkle-patricia-trie
 
 go 1.12
 

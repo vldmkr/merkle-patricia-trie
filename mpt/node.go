@@ -5,7 +5,7 @@ import (
 	fmt "fmt"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/zllai/go-MerklePatriciaTree/kvstore"
+	"github.com/vldmkr/merkle-patricia-trie/kvstore"
 	"golang.org/x/crypto/sha3"
 )
 
