@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/fxamacker/cbor/v2"
 	"github.com/vldmkr/merkle-patricia-trie/kvstore"
 )
 
@@ -278,7 +278,7 @@ func (t *Trie) Serialize() ([]byte, error) {
 		return nil, err
 	}
 	t.root = newNode
-	data, err := proto.Marshal(persistTrie)
+	data, err := cbor.Marshal(persistTrie)
 	return data, err
 }
 
@@ -296,11 +296,11 @@ func (t *Trie) persist(node Node, persistTrie *PersistTrie) (Node, error) {
 			node = newNode
 		}
 		data := node.Serialize()
-		persistKV := PersistKV{
+		persistPair := PersistTriePair{
 			Key:   node.Hash(),
 			Value: data,
 		}
-		persistTrie.Pairs = append(persistTrie.Pairs, &persistKV)
+		persistTrie.Pairs = append(persistTrie.Pairs, &persistPair)
 	}
 	switch n := node.(type) {
 	case *FullNode:
@@ -315,7 +315,7 @@ func (t *Trie) persist(node Node, persistTrie *PersistTrie) (Node, error) {
 
 func (t *Trie) Deserialize(data []byte) error {
 	persistTrie := PersistTrie{}
-	err := proto.Unmarshal(data, &persistTrie)
+	err := cbor.Unmarshal(data, &persistTrie)
 	if err != nil {
 		return err
 	}

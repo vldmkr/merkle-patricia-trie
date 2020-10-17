@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	store := kvstore.NewMemKVStore()
+	store, _ := kvstore.NewLevelDB("BASE")
+	// store := kvstore.NewMemKVStore()
 	trie1 := mpt.New(nil, store)
 
 	err := trie1.Put([]byte("key"), []byte("hello"))
