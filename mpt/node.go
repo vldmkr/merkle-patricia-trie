@@ -6,7 +6,7 @@ import (
 
 	"github.com/fxamacker/cbor/v2"
 	"github.com/vldmkr/merkle-patricia-trie/crypto"
-	"github.com/vldmkr/merkle-patricia-trie/kvstore"
+	"github.com/vldmkr/merkle-patricia-trie/storage"
 )
 
 type (
@@ -14,7 +14,7 @@ type (
 		Hash() []byte
 		CachedHash() []byte
 		Serialize() []byte
-		Save(kvstore.KVStore)
+		Save(storage.StorageAdapter)
 	}
 	FullNode struct {
 		Children [257]Node
@@ -101,9 +101,9 @@ func (vn *ValueNode) Hash() []byte {
 	return vn.cache
 }
 
-func (vn *ValueNode) Save(kv kvstore.KVStore) {
+func (vn *ValueNode) Save(store storage.StorageAdapter) {
 	data := vn.Serialize()
-	kv.Put(vn.cache, data)
+	store.Put(vn.cache, data)
 }
 
 func (fn *FullNode) Serialize() []byte {
@@ -130,9 +130,9 @@ func (fn *FullNode) Hash() []byte {
 	return fn.cache
 }
 
-func (fn *FullNode) Save(kv kvstore.KVStore) {
+func (fn *FullNode) Save(store storage.StorageAdapter) {
 	data := fn.Serialize()
-	kv.Put(fn.cache, data)
+	store.Put(fn.cache, data)
 }
 
 func (sn *ShortNode) Serialize() []byte {
@@ -155,11 +155,11 @@ func (sn *ShortNode) Hash() []byte {
 	return sn.cache
 }
 
-func (sn *ShortNode) Save(kv kvstore.KVStore) {
+func (sn *ShortNode) Save(store storage.StorageAdapter) {
 	data := sn.Serialize()
-	kv.Put(sn.cache, data)
+	store.Put(sn.cache, data)
 }
 
-func (hn *HashNode) Hash() []byte            { return []byte(*hn) }
-func (hn *HashNode) Serialize() []byte       { return nil }
-func (hn *HashNode) Save(kv kvstore.KVStore) {}
+func (hn *HashNode) Hash() []byte                      { return []byte(*hn) }
+func (hn *HashNode) Serialize() []byte                 { return nil }
+func (hn *HashNode) Save(store storage.StorageAdapter) {}

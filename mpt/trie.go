@@ -8,17 +8,17 @@ import (
 	"sync"
 
 	"github.com/fxamacker/cbor/v2"
-	"github.com/vldmkr/merkle-patricia-trie/kvstore"
+	"github.com/vldmkr/merkle-patricia-trie/storage"
 )
 
 type Trie struct {
 	oldRoot []byte
 	root    Node
-	kv      kvstore.KVStore
+	store   storage.StorageAdapter
 	lock    *sync.RWMutex
 }
 
-func New(root Node, kv kvstore.KVStore) *Trie {
+func New(root Node, store storage.StorageAdapter) *Trie {
 	var oldRoot []byte = nil
 	if root != nil {
 		root.Serialize() // update cached hash
@@ -27,7 +27,7 @@ func New(root Node, kv kvstore.KVStore) *Trie {
 	return &Trie{
 		oldRoot: oldRoot,
 		root:    root,
-		kv:      kv,
+		store:   store,
 		lock:    &sync.RWMutex{},
 	}
 }
@@ -74,7 +74,7 @@ func (t *Trie) get(node Node, key []byte, prefixLen int) (Node, Node, error) {
 		n.Value = newNode
 		return valueNode, node, err
 	case *HashNode:
-		data, err := t.kv.Get([]byte(*n))
+		data, err := t.store.Get([]byte(*n))
 		if err != nil {
 			return nil, node, err
 		}
@@ -193,7 +193,7 @@ func (t *Trie) put(node Node, key []byte, value Node, prefixLen int) (Node, erro
 		if prefixLen >= len(key) {
 			return node, errors.New(fmt.Sprintf("[Trie] Cannot insert"))
 		}
-		data, err := t.kv.Get([]byte(*n))
+		data, err := t.store.Get([]byte(*n))
 		if err != nil {
 			return node, err
 		}
@@ -242,12 +242,12 @@ func (t *Trie) commit(node Node) {
 		for i := 0; i < len(n.Children); i++ {
 			t.commit(n.Children[i])
 		}
-		n.Save(t.kv)
+		n.Save(t.store)
 	case *ShortNode:
 		t.commit(n.Value)
-		n.Save(t.kv)
+		n.Save(t.store)
 	case *ValueNode:
-		n.Save(t.kv)
+		n.Save(t.store)
 	}
 }
 
@@ -285,7 +285,7 @@ func (t *Trie) Serialize() ([]byte, error) {
 func (t *Trie) persist(node Node, persistTrie *PersistTrie) (Node, error) {
 	if node != nil {
 		if n, ok := node.(*HashNode); ok {
-			data, err := t.kv.Get([]byte(*n))
+			data, err := t.store.Get([]byte(*n))
 			if err != nil {
 				return node, err
 			}
@@ -320,7 +320,7 @@ func (t *Trie) Deserialize(data []byte) error {
 		return err
 	}
 	for i := 0; i < len(persistTrie.Pairs); i++ {
-		t.kv.Put(persistTrie.Pairs[i].Key, persistTrie.Pairs[i].Value)
+		t.store.Put(persistTrie.Pairs[i].Key, persistTrie.Pairs[i].Value)
 	}
 	if len(persistTrie.Pairs) == 0 {
 		t.root = nil

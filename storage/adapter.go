@@ -1,6 +1,6 @@
-package kvstore
+package storage
 
-type KVStore interface {
+type StorageAdapter interface {
 	Get([]byte) ([]byte, error)
 	Put([]byte, []byte) error
 	Has([]byte) bool

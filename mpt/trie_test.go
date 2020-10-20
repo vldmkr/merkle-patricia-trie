@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/vldmkr/merkle-patricia-trie/kvstore"
+	"github.com/vldmkr/merkle-patricia-trie/storage"
 )
 
 func TestPutGet(t *testing.T) {
-	kv := kvstore.NewMemKVStore()
-	trie := New(nil, kv)
+	store := storage.NewMemoryAdapter()
+	trie := New(nil, store)
 	err := trie.Put([]byte("123456"), []byte("A"))
 	if err != nil {
 		t.Error(err.Error())
@@ -92,8 +92,8 @@ func TestPutGet(t *testing.T) {
 }
 
 func TestPutCommitGet(t *testing.T) {
-	kv := kvstore.NewMemKVStore()
-	trie := New(nil, kv)
+	store := storage.NewMemoryAdapter()
+	trie := New(nil, store)
 	err := trie.Put([]byte("123456"), []byte("A"))
 	if err != nil {
 		t.Error(err.Error())
@@ -178,8 +178,8 @@ func TestPutCommitGet(t *testing.T) {
 }
 
 func TestPutAbort(t *testing.T) {
-	kv := kvstore.NewMemKVStore()
-	trie := New(nil, kv)
+	store := storage.NewMemoryAdapter()
+	trie := New(nil, store)
 	err := trie.Put([]byte("123456"), []byte("A"))
 	if err != nil {
 		t.Error(err.Error())
@@ -296,8 +296,8 @@ func TestNodeSerialize(t *testing.T) {
 }
 
 func TestSerializeDeserialize(t *testing.T) {
-	kv := kvstore.NewMemKVStore()
-	trie := New(nil, kv)
+	store := storage.NewMemoryAdapter()
+	trie := New(nil, store)
 	err := trie.Put([]byte("123456"), []byte("A"))
 	if err != nil {
 		t.Error(err.Error())
@@ -332,8 +332,8 @@ func TestSerializeDeserialize(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	kv = kvstore.NewMemKVStore()
-	trie = New(nil, kv)
+	store = storage.NewMemoryAdapter()
+	trie = New(nil, store)
 	err = trie.Deserialize(data)
 	if err != nil {
 		t.Error(err.Error())
@@ -393,11 +393,11 @@ func TestSerializeDeserialize(t *testing.T) {
 }
 
 func TestPutCommitGetLevelDB(t *testing.T) {
-	kv, err := kvstore.NewLevelDB("./test")
+	store, err := storage.NewLevelDBAdapter("./test")
 	if err != nil {
 		t.Error(err.Error())
 	}
-	trie := New(nil, kv)
+	trie := New(nil, store)
 	err = trie.Put([]byte("123456"), []byte("A"))
 	if err != nil {
 		t.Error(err.Error())

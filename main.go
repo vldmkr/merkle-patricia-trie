@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/vldmkr/merkle-patricia-trie/kvstore"
 	"github.com/vldmkr/merkle-patricia-trie/mpt"
+	"github.com/vldmkr/merkle-patricia-trie/storage"
 )
 
 func main() {
-	store, _ := kvstore.NewLevelDB("BASE")
-	// store := kvstore.NewMemKVStore()
+	store, _ := storage.NewLevelDBAdapter("BASE")
+	// store := storage.NewMemoryAdapter()
 	trie1 := mpt.New(nil, store)
 
 	err := trie1.Put([]byte("key"), []byte("hello"))

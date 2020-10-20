@@ -1,4 +1,4 @@
-package kvstore
+package storage
 
 import (
 	"encoding/hex"
@@ -7,19 +7,19 @@ import (
 	"sync"
 )
 
-type MemKVStore struct {
+type MemoryAdapter struct {
 	store map[string][]byte
 	lock  *sync.RWMutex
 }
 
-func NewMemKVStore() *MemKVStore {
-	return &MemKVStore{
+func NewMemoryAdapter() *MemoryAdapter {
+	return &MemoryAdapter{
 		store: make(map[string][]byte),
 		lock:  &sync.RWMutex{},
 	}
 }
 
-func (kv *MemKVStore) Get(key []byte) ([]byte, error) {
+func (kv *MemoryAdapter) Get(key []byte) ([]byte, error) {
 	kv.lock.RLock()
 	defer kv.lock.RUnlock()
 	keyHex := hex.EncodeToString(key)
@@ -30,7 +30,7 @@ func (kv *MemKVStore) Get(key []byte) ([]byte, error) {
 	}
 }
 
-func (kv *MemKVStore) Put(key, value []byte) error {
+func (kv *MemoryAdapter) Put(key, value []byte) error {
 	kv.lock.Lock()
 	defer kv.lock.Unlock()
 	keyHex := hex.EncodeToString(key)
@@ -38,7 +38,7 @@ func (kv *MemKVStore) Put(key, value []byte) error {
 	return nil
 }
 
-func (kv *MemKVStore) Has(key []byte) bool {
+func (kv *MemoryAdapter) Has(key []byte) bool {
 	kv.lock.RLock()
 	defer kv.lock.RUnlock()
 	keyHex := hex.EncodeToString(key)
@@ -46,7 +46,7 @@ func (kv *MemKVStore) Has(key []byte) bool {
 	return ok
 }
 
-func (kv *MemKVStore) Delete(key []byte) error {
+func (kv *MemoryAdapter) Delete(key []byte) error {
 	kv.lock.Lock()
 	defer kv.lock.Unlock()
 	keyHex := hex.EncodeToString(key)
@@ -58,7 +58,7 @@ func (kv *MemKVStore) Delete(key []byte) error {
 	return nil
 }
 
-func (kv *MemKVStore) BatchPut(kvs [][2][]byte) error {
+func (kv *MemoryAdapter) BatchPut(kvs [][2][]byte) error {
 	kv.lock.Lock()
 	defer kv.lock.Unlock()
 	for i := range kvs {
@@ -67,4 +67,4 @@ func (kv *MemKVStore) BatchPut(kvs [][2][]byte) error {
 	return nil
 }
 
-func (kv *MemKVStore) Close() {}
+func (kv *MemoryAdapter) Close() {}
